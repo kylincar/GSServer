@@ -1181,6 +1181,20 @@ namespace ASCOM.GS.Sky.Telescope
                     }
                     SkyServer.ParkSelected = found;
                     return found.Name;
+                // ReSharper disable once StringLiteralTypo
+                case string str when str.Equals("telescope:axis_slew", StringComparison.InvariantCultureIgnoreCase):
+                    if (SkyServer.IsMountRunning == false) { throw new NotConnectedException("Mount Not Connected"); }
+
+                    // Parse JSON parameters
+                    var slewParams = JsonConvert.DeserializeObject<Dictionary<string, double>>(actionParameters);
+                    foreach (var param in slewParams)
+                    {
+                        var axisId = int.Parse(param.Key);
+                        var rate = param.Value;
+                        SkyServer.AxisSlewV2(axisId, rate);
+                    }
+                    return "telescope:axis_slew executed";
+
                 default:
                     throw new ActionNotImplementedException($"Not Found:'{actionName}'");
             }
@@ -1199,7 +1213,7 @@ namespace ASCOM.GS.Sky.Telescope
                 MonitorLog.LogToMonitor(monitorItem);
 
                 // ReSharper disable once StringLiteralTypo
-                var sa = new ArrayList { @"Telescope:SetParkPosition" };
+                var sa = new ArrayList { @"telescope:setparkposition", @"telescope:axis_slew" };
 
                 return sa;
             }

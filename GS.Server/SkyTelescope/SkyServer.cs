@@ -4252,6 +4252,41 @@ namespace GS.Server.SkyTelescope
         }
 
         /// <summary>
+        /// Slew axis with any speed, add by chianndy
+        /// </summary>
+        /// <param name="axis"></param>
+        /// <param name="rate_in_degree"></param>
+        /// <returns></returns>
+        public static bool AxisSlewV2(int axis, double rate_in_degree)
+        {
+            var axis_id = AxisId.Axis1;
+            var axis_sim = Axis.Axis1;
+            switch (axis)
+            {
+                case 1:
+                    axis_id = AxisId.Axis1;
+                    axis_sim = Axis.Axis1;
+                    break;
+                case 2:
+                    axis_id = AxisId.Axis2;
+                    axis_sim = Axis.Axis2;
+                    break;
+                default:
+                    return false;
+            }
+            switch (SkySettings.Mount) 
+            {
+                case MountType.Simulator:
+                    _ = new CmdMoveAxisRate(0, axis_sim, rate_in_degree);
+                    break;
+                case MountType.SkyWatcher:
+                    // Create and execute the slew command
+                    _ = new SkyAxisSlew(0, axis_id, rate_in_degree);
+                    break;
+            }
+            return true;
+        }
+        /// <summary>
         /// return the change in axis values as a result of any HC button presses
         /// </summary>
         /// <returns></returns>
